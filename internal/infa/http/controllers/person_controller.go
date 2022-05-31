@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-chi/chi/v5"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -68,30 +67,13 @@ func (c *PerconControler) FindOnePer() http.HandlerFunc {
 }
 func (c *PerconControler) AddNewPeson() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		formdata := map[string]string{}
-		err_post := json.NewDecoder(r.Body).Decode(&formdata)
+		var person person.Person
+		err_post := json.NewDecoder(r.Body).Decode(&person)
 		if err_post != nil {
 			fmt.Println("Error: ", err_post)
 		}
 		defer r.Body.Close()
-		age := formdata["Age"]
-		ageint, err_conv := strconv.Atoi(age)
-		if err_conv != nil {
-			fmt.Printf("Сonvert: ", err_conv)
-		}
-		event_id := formdata["Event_ID"]
-		event_id_int, err_conv := strconv.Atoi(event_id)
-		if err_conv != nil {
-			fmt.Printf("Сonvert: ", err_conv)
-		}
-		person := person.Person{
-			Name:     formdata["Name"],
-			Sername:  formdata["Sername"],
-			Age:      ageint,
-			Event_id: event_id_int,
-		}
-		log.Print(person)
-		err := (*c.service).AddNewPerson(&person)
+		personId, err := (*c.service).AddNewPerson(&person)
 		if err != nil {
 			fmt.Printf("PerconControler.AddNewPeson(): %s", err)
 			err = internalServerError(w, err)
@@ -101,7 +83,7 @@ func (c *PerconControler) AddNewPeson() http.HandlerFunc {
 			return
 		}
 
-		err = noContent(w)
+		err = success(w, personId)
 		if err != nil {
 			fmt.Printf("PerconControler.AddNewPeson(): %s", err)
 		}
@@ -110,39 +92,13 @@ func (c *PerconControler) AddNewPeson() http.HandlerFunc {
 
 func (c *PerconControler) UppdatePeson() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
-		if err != nil {
-			fmt.Printf("PerconControler.FindOnePer(): %s", err)
-			err = internalServerError(w, err)
-			if err != nil {
-				fmt.Printf("PerconControler.FindOnePer(): %s", err)
-			}
-			return
-		}
-		formdata := map[string]string{}
-		err_post := json.NewDecoder(r.Body).Decode(&formdata)
+		var person person.Person
+		err_post := json.NewDecoder(r.Body).Decode(&person)
 		if err_post != nil {
 			fmt.Println("Error: ", err_post)
 		}
 		defer r.Body.Close()
-		age := formdata["Age"]
-		ageint, err_conv := strconv.Atoi(age)
-		if err_conv != nil {
-			fmt.Printf("Сonvert: ", err_conv)
-		}
-		event_id := formdata["Event_ID"]
-		event_id_int, err_conv := strconv.Atoi(event_id)
-		if err_conv != nil {
-			fmt.Printf("Сonvert: ", err_conv)
-		}
-		person := person.Person{
-			Name:     formdata["Name"],
-			Sername:  formdata["Sername"],
-			Age:      ageint,
-			Event_id: event_id_int,
-		}
-		log.Print(person)
-		err = (*c.service).UpdatePerson(&person, id)
+		uPerson, err := (*c.service).UpdatePerson(&person)
 		if err != nil {
 			fmt.Printf("PerconControler.AddNewPeson(): %s", err)
 			err = internalServerError(w, err)
@@ -151,10 +107,36 @@ func (c *PerconControler) UppdatePeson() http.HandlerFunc {
 			}
 			return
 		}
-
-		err = noContent(w)
+		err = success(w, uPerson)
 		if err != nil {
 			fmt.Printf("PerconControler.AddNewPeson(): %s", err)
+		}
+	}
+}
+func (c *PerconControler) DeletePerson() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+		if err != nil {
+			fmt.Printf("EventController.FindOne(): %s", err)
+			err = internalServerError(w, err)
+			if err != nil {
+				fmt.Printf("EventController.FindOne(): %s", err)
+			}
+			return
+		}
+		message, err := (*c.service).DeletePerson(id)
+		if err != nil {
+			fmt.Printf("EventController.FindOne(): %s", err)
+			err = internalServerError(w, err)
+			if err != nil {
+				fmt.Printf("EventController.FindOne(): %s", err)
+			}
+			return
+		}
+
+		err = success(w, message)
+		if err != nil {
+			fmt.Printf("EventController.FindOne(): %s", err)
 		}
 	}
 }

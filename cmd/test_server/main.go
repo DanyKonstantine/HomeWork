@@ -7,6 +7,8 @@ import (
 	"HomeWork/internal/infa/http/controllers"
 	"context"
 	"fmt"
+	"github.com/upper/db/v4/adapter/postgresql"
+	"log"
 	"os"
 	"os/signal"
 	"runtime/debug"
@@ -16,7 +18,17 @@ import (
 func main() {
 	exitCode := 0
 	ctx, cancel := context.WithCancel(context.Background())
-
+	var setings = postgresql.ConnectionURL{
+		Database: `Event`,
+		Host:     `127.0.0.1:5432`,
+		User:     `postgres`,
+		Password: `postgres`,
+	}
+	sess, errConn := postgresql.Open(setings)
+	if errConn != nil {
+		log.Fatal("Open: ", errConn)
+	}
+	defer sess.Close()
 	// Recover
 	defer func() {
 		if r := recover(); r != nil {
@@ -38,10 +50,10 @@ func main() {
 	}()
 
 	// Event
-	eventRepository := event.NewRepository()
+	eventRepository := event.NewRepository(sess)
 	eventService := event.NewService(&eventRepository)
 	eventController := controllers.NewEventController(&eventService)
-	personRepository := person.NewRepository()
+	personRepository := person.NewRepository(sess)
 	personService := person.NewService(&personRepository)
 	personControler := controllers.NewPerconControler(&personService)
 

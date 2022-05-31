@@ -2,104 +2,65 @@ package person
 
 import (
 	"fmt"
-	"github.com/upper/db/v4/adapter/postgresql"
-	"log"
+	"github.com/upper/db/v4"
 )
 
 type PerRepository interface {
 	FindAllPer() ([]Person, error)
-	FindlOnePer(age int64) (*Person, error)
-	AddNewPerson(person *Person) error
-	UpdatePerson(person *Person, id uint64) error
+	FindOnePer(id int64) (*Person, error)
+	AddNewPerson(person *Person) (*db.ID, error)
+	UpdatePerson(person *Person) (*Person, error)
+	DeletePerson(id uint64) (string, error)
 }
-
-const PersonCount = int64(10)
 
 type perrepository struct {
+	sess db.Session
 }
 
-var setings = postgresql.ConnectionURL{
-	Database: `Event`,
-	Host:     `127.0.0.1:5432`,
-	User:     `postgres`,
-	Password: `postgres`,
-}
-
-func NewRepository() PerRepository {
-	return &perrepository{}
+func NewRepository(sess db.Session) PerRepository {
+	return &perrepository{sess: sess}
 }
 
 func (pr *perrepository) FindAllPer() ([]Person, error) {
-	sess, err := postgresql.Open(setings)
+	var persons []Person
+	err := pr.sess.Collection("persons").Find().OrderBy("name").All(&persons)
 	if err != nil {
-		log.Fatal("Open: ", err)
+		fmt.Println("Records not found : ", err)
+		return nil, err
 	}
-	defer sess.Close()
-	personColection := sess.Collection("Person")
-	res := personColection.Find()
-	res = res.OrderBy("Name")
-	var person []Person
-	if err = res.All(&person); err != nil {
-		log.Fatal("personColection: ", err)
+	return persons, nil
+}
+func (pr *perrepository) FindOnePer(id int64) (*Person, error) {
+	var person Person
+	err := pr.sess.Collection("persons").Find(id).One(&person)
+	if err != nil {
+		fmt.Println("One person not found : ", err)
+		return nil, err
+	}
+	return &person, nil
+}
+func (pr *perrepository) AddNewPerson(person *Person) (*db.ID, error) {
+	personReturn, err := pr.sess.Collection("persons").Insert(person)
+	personId := personReturn.ID()
+	if err != nil {
+		fmt.Println("Can`t add person", err)
+		return nil, err
+	}
+	return &personId, nil
+}
+func (pr *perrepository) UpdatePerson(person *Person) (*Person, error) {
+	err := pr.sess.Collection("persons").Find(person.ID).Update(person)
+	if err != nil {
+		fmt.Println("One person not found : ", err)
+		return nil, err
 	}
 	return person, nil
 }
-func (pr *perrepository) FindlOnePer(id int64) (*Person, error) {
-	sess, err := postgresql.Open(setings)
+func (pr *perrepository) DeletePerson(id uint64) (string, error) {
+	err := pr.sess.Collection("persons").Find(id).Delete()
 	if err != nil {
-		log.Fatal("Open: ", err)
+		fmt.Println("One person not found : ", err)
+		return " ", err
 	}
-	defer sess.Close()
-	personColection := sess.Collection("Person")
-	res := personColection.Find()
-	count, _ := res.Count()
-	if id <= int64(count) {
-		q := sess.SQL().SelectFrom("Person").Where("\"ID\" =?", id)
-		var person Person
-		if err := q.One(&person); err != nil {
-			log.Fatal("q.One:", err)
-			return nil, err
-		}
-		return &person, nil
-	} else {
-		return nil, nil
-	}
-}
-func (pr *perrepository) AddNewPerson(person *Person) error {
-	sess, err := postgresql.Open(setings)
-	if err != nil {
-		log.Fatal("Open: ", err)
-		return err
-	}
-	defer sess.Close()
-	res, errr := sess.SQL().
-		InsertInto("Person").
-		Columns("Name", "Sername", "Age", "Event_ID").
-		Values(person.Name, person.Sername, person.Age, person.Event_id).
-		Exec()
-	if errr != nil {
-		return err
-	}
-	if res != nil {
-		fmt.Println("Corect Insert")
-	}
-	return nil
-}
-func (pr *perrepository) UpdatePerson(person *Person, id uint64) error {
-	sess, err := postgresql.Open(setings)
-	if err != nil {
-		log.Fatal("Open: ", err)
-	}
-	defer sess.Close()
-	personColection := sess.Collection("Person")
-	res := personColection.Find()
-	count, _ := res.Count()
-	if id <= count {
-		res_up := sess.SQL().Update("Person")
-		res_up.Set(person).Where("\"ID\"=?", id).Exec()
-		if res_up != nil {
-			fmt.Println("Corect Update")
-		}
-	}
-	return err
+	return "Record successfully deleted", nil
 }

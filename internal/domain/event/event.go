@@ -1,12 +1,12 @@
 package event
 
 type Event struct {
-	ID        int     `db:"ID,omitempty"`
-	Title     string  `db:"Title"`
-	ShortDesc string  `db:"ShortDesc"'`
-	Desc      string  `db:"Desc"`
-	Long      float64 `db:"Long"`
-	Let       float64 `db:"Let"`
-	Images    string  `db:"Images"`
-	Prewive   string  `db:"Prewive"`
+	ID        int64   `db:"id"`
+	Title     string  `db:"title"`
+	ShortDesc string  `db:"shortDesc"'`
+	Desc      string  `db:"desc"`
+	Long      float64 `db:"long"`
+	Let       float64 `db:"let"`
+	Images    string  `db:"images"`
+	Preview   string  `db:"preview"`
 }

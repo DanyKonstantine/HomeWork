@@ -1,10 +1,13 @@
 package person
 
+import "github.com/upper/db/v4"
+
 type Service interface {
 	FindAllPer() ([]Person, error)
 	FindOnePer(id int64) (*Person, error)
-	AddNewPerson(person *Person) error
-	UpdatePerson(person *Person, id uint64) error
+	AddNewPerson(person *Person) (*db.ID, error)
+	UpdatePerson(person *Person) (*Person, error)
+	DeletePerson(id uint64) (string, error)
 }
 
 type pservice struct {
@@ -20,11 +23,14 @@ func (ps *pservice) FindAllPer() ([]Person, error) {
 	return (*ps.repo).FindAllPer()
 }
 func (ps *pservice) FindOnePer(id int64) (*Person, error) {
-	return (*ps.repo).FindlOnePer(id)
+	return (*ps.repo).FindOnePer(id)
 }
-func (ps *pservice) AddNewPerson(person *Person) error {
+func (ps *pservice) AddNewPerson(person *Person) (*db.ID, error) {
 	return (*ps.repo).AddNewPerson(person)
 }
-func (ps *pservice) UpdatePerson(person *Person, id uint64) error {
-	return (*ps.repo).UpdatePerson(person, id)
+func (ps *pservice) UpdatePerson(person *Person) (*Person, error) {
+	return (*ps.repo).UpdatePerson(person)
+}
+func (ps *pservice) DeletePerson(id uint64) (string, error) {
+	return (*ps.repo).DeletePerson(id)
 }

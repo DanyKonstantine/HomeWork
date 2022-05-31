@@ -12,13 +12,17 @@
 
 `http://localhost:8081/v1/events/{id}`
 
-## Person on Event
+## Update Event 
 
-`http://localhost:8081/v1/persononevent/{id}`
+`http://localhost:8081/v1/events`
 
-## Uppdate Event (by ID)
+## Add Event
 
-`http://localhost:8081/v1/uppdateevent/{id}`
+`http://localhost:8081/v1/events`
+
+## Delete Event
+
+`http://localhost:8081/v1/events/{id}`
 
 ## Persons List
 
@@ -28,10 +32,13 @@
 
 `http://localhost:8081/v1/person/{id}`
 
-## New Person
+## Add Person
 
-`http://localhost:8081/v1/newperson`
+`http://localhost:8081/v1/person`
 
-## Uppdate Person (by ID)
+## Update Person 
 
-`http://localhost:8081/v1/uppdateperson/{id}`
+`http://localhost:8081/v1/person`
+
+## Delete Person
+`http://localhost:8081/v1/person/{id}`

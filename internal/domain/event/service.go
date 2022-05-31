@@ -1,11 +1,13 @@
 package event
 
+import "github.com/upper/db/v4"
+
 type Service interface {
-	FindAll() ([]Event, error)
+	FindAll() (*[]Event, error)
 	FindOne(id uint64) (*Event, error)
-	AddNewEvent(event *Event) error
-	PersonOnEvent(id uint64) (*PersonOnEvent, error)
-	UpdateEvent(event *Event, id uint64) error
+	AddNewEvent(event *Event) (*db.ID, error)
+	UpdateEvent(event *Event) (*Event, error)
+	DeleteEvent(id uint64) (string, error)
 }
 
 type service struct {
@@ -18,19 +20,19 @@ func NewService(r *Repository) Service {
 	}
 }
 
-func (s *service) FindAll() ([]Event, error) {
+func (s *service) FindAll() (*[]Event, error) {
 	return (*s.repo).FindAll()
 }
 
 func (s *service) FindOne(id uint64) (*Event, error) {
 	return (*s.repo).FindOne(id)
 }
-func (s *service) AddNewEvent(event *Event) error {
+func (s *service) AddNewEvent(event *Event) (*db.ID, error) {
 	return (*s.repo).AddNewEvent(event)
 }
-func (s *service) PersonOnEvent(id uint64) (*PersonOnEvent, error) {
-	return (*s.repo).PersonOnEvent(id)
+func (s *service) UpdateEvent(event *Event) (*Event, error) {
+	return (*s.repo).UpdateEvent(event)
 }
-func (s *service) UpdateEvent(event *Event, id uint64) error {
-	return (*s.repo).UpdateEvent(event, id)
+func (s *service) DeleteEvent(id uint64) (string, error) {
+	return (*s.repo).DeleteEvent(id)
 }

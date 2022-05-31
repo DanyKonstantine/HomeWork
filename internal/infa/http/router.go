@@ -49,24 +49,17 @@ func AddEventRoutes(router *chi.Router, eventController *controllers.EventContro
 			"/{id}",
 			eventController.FindOne(),
 		)
-
-	})
-	(*router).Route("/persononevent", func(apiRouter chi.Router) {
-		apiRouter.Get(
-			"/{id}",
-			eventController.PersonOnEvent(),
-		)
-	})
-	(*router).Route("/newevent", func(apiRouter chi.Router) {
 		apiRouter.Post(
 			"/",
 			eventController.AddNewEvent(),
 		)
-	})
-	(*router).Route("/uppdateevent", func(apiRouter chi.Router) {
-		apiRouter.Post(
-			"/{id}",
+		apiRouter.Put(
+			"/",
 			eventController.UppdateEvent(),
+		)
+		apiRouter.Delete(
+			"/{id}",
+			eventController.DeletEvent(),
 		)
 	})
 }
@@ -80,17 +73,17 @@ func AddPersonRoutes(router *chi.Router, personControler *controllers.PerconCont
 			"/{id}",
 			personControler.FindOnePer(),
 		)
-	})
-	(*router).Route("/newperson", func(apiRouter chi.Router) {
 		apiRouter.Post(
 			"/",
 			personControler.AddNewPeson(),
 		)
-	})
-	(*router).Route("/uppdateperson", func(apiRouter chi.Router) {
-		apiRouter.Post(
-			"/{id}",
+		apiRouter.Put(
+			"/",
 			personControler.UppdatePeson(),
+		)
+		apiRouter.Delete(
+			"/{id}",
+			personControler.DeletePerson(),
 		)
 	})
 }
